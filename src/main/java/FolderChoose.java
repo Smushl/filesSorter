@@ -1,3 +1,5 @@
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -9,19 +11,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * filesSorter
  * Created by roman on 05.03.16.
  */
-public class FolderChoose extends JFrame {
-    private JButton btnChoose;
+class FolderChoose extends JFrame {
     private JFileChooser fileOpenDialog;
     private String directory;
-    private JPanel pane1;
     private List<File> files;
     private final String DEFAULT_PATH = "/media/roman/EOS_DIGITAL/DCIM/100CANON";
 
-    public FolderChoose(){
+    FolderChoose(){
         super("Choose Folder To Files Sort");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         files = new LinkedList<>();
 
@@ -29,7 +30,7 @@ public class FolderChoose extends JFrame {
         fileOpenDialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileOpenDialog.setAcceptAllFileFilterUsed(false);
 
-        btnChoose = new JButton("Open");
+        JButton btnChoose = new JButton("Open");
         btnChoose.addActionListener(e ->{
             fileOpenDialog.setCurrentDirectory(new File(DEFAULT_PATH));
             if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -54,7 +55,7 @@ public class FolderChoose extends JFrame {
             System.exit(0);
         });
 
-        pane1 = new JPanel(new BorderLayout());
+        JPanel pane1 = new JPanel(new BorderLayout());
         pane1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         pane1.add(btnChoose, BorderLayout.CENTER);
         setContentPane(pane1);

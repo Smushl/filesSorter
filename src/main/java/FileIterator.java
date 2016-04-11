@@ -1,3 +1,5 @@
+
+
 import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
@@ -6,10 +8,11 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 /**
+ * filesSorter
  * Created by Roman on 05.03.2016.
  */
 public class FileIterator implements Iterator<String>{
-    private Queue<File> files = new LinkedList<File>();
+    private Queue<File> files = new LinkedList<>();
     public FileIterator(String path){
         files.add(new File(path));
     }
