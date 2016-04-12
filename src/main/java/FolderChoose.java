@@ -20,7 +20,7 @@ class FolderChoose extends JFrame {
     private List<File> files;
     private final String DEFAULT_PATH = "/media/roman/EOS_DIGITAL/DCIM/100CANON";
 
-    FolderChoose(){
+    FolderChoose() {
         super("Choose Folder To Files Sort");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -31,20 +31,20 @@ class FolderChoose extends JFrame {
         fileOpenDialog.setAcceptAllFileFilterUsed(false);
 
         JButton btnChoose = new JButton("Open");
-        btnChoose.addActionListener(e ->{
+        btnChoose.addActionListener(e -> {
             fileOpenDialog.setCurrentDirectory(new File(DEFAULT_PATH));
             if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 directory = fileOpenDialog.getSelectedFile().getPath();
                 System.out.println(fileOpenDialog.getSelectedFile().getPath());
-                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().contains(".CR2")) || (pathname.getName().contains(".MOV"))|| (pathname.getName().contains(".jpg"))|| (pathname.getName().contains(".mp4"))));
+                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().contains(".CR2")) || (pathname.getName().contains(".MOV")) || (pathname.getName().contains(".jpg")) || (pathname.getName().contains(".mp4"))));
                 //------------------------------------------------
-                for(File file : files){
+                for (File file : files) {
                     try {
                         BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                         String dateFolderName = attr.creationTime().toString().substring(0, 10);
-                        File dateFolder  = new File(directory + "/" + dateFolderName);
+                        File dateFolder = new File(directory + "/" + dateFolderName);
                         System.out.println("Creating " + dateFolder.getName() + " " + dateFolder.mkdir());
-                        System.out.println("Mooving file " + file.getName() + " "+ file.renameTo(new File(directory + "/" + dateFolderName + "/" + file.getName())));
+                        System.out.println("Mooving file " + file.getName() + " " + file.renameTo(new File(directory + "/" + dateFolderName + "/" + file.getName())));
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -64,4 +64,9 @@ class FolderChoose extends JFrame {
         pack();
         setVisible(true);
     }
+
+    public static void main(String[] args) {
+        new FolderChoose();
+    }
 }
+
