@@ -27,11 +27,13 @@ class FolderChoose extends JFrame {
 
     private FolderChoose() {
         super("Choose Folder To Files Sort");
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         files = new LinkedList<>();
@@ -46,7 +48,8 @@ class FolderChoose extends JFrame {
             if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 directory = fileOpenDialog.getSelectedFile().getPath();
                 System.out.println(fileOpenDialog.getSelectedFile().getPath());
-                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().toLowerCase().contains(".cr2")) || (pathname.getName().toLowerCase().contains(".jpg"))/*|| (pathname.getName().contains(".MOV")) || (pathname.getName().contains(".mp4"))*/));
+                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname ->
+                        (pathname.getName().toLowerCase().contains(".cr2")) || (pathname.getName().toLowerCase().contains(".jpg"))/*|| (pathname.getName().contains(".MOV")) || (pathname.getName().contains(".mp4"))*/));
                 //------------------------------------------------
                 for (File file : files) {
                     String dateFolderName = "_X3";
@@ -54,22 +57,12 @@ class FolderChoose extends JFrame {
 //                        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
 //                        String dateFolderName = attr.creationTime().toString().substring(0, 10);
                         Metadata metadata = ImageMetadataReader.readMetadata(file);
-                        ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-                        ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+                        Date date = ExifViewer.getDateFromMetadata(metadata);
+                        java.sql.Date dsql = new java.sql.Date(date.getTime());
+                        dateFolderName = dsql.toString();
 
-                        Date dateSubIFD = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault());
-                        Date dateIFD0 = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault());
-
-                        if (dateIFD0 != null) {
-                            java.sql.Date dsql = new java.sql.Date(dateIFD0.getTime());
-                            dateFolderName = dsql.toString();
-                        }
-                        else {
-                            java.sql.Date dsql = new java.sql.Date(dateSubIFD.getTime());
-                            dateFolderName = dsql.toString();
-                        }
                     } catch (Exception e1) {
-                        System.err.println(file.getName());
+                        System.err.println("Error with file " + file.getName());
                         e1.printStackTrace();
                     }
                     File dateFolder = new File(directory + "/" + dateFolderName);

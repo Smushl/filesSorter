@@ -4,6 +4,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataReader;
 import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifDirectoryBase;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
@@ -18,37 +19,39 @@ import java.util.TimeZone;
  * Created by Некрасов on 12.04.2016.
  */
 public class ExifViewer {
+    public static Date getDateFromMetadata (Metadata metadata){
+        Date date;
+        ExifDirectoryBase exifDirectory;
+        exifDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+        //тут возникает NullPointerException, беда, что он вылетает из первой же строчки
+        if ((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME_ORIGINAL, TimeZone.getDefault())) != null)
+            return date;
+        else if((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME, TimeZone.getDefault())) != null)
+            return date;
+
+        exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+        if ((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME_ORIGINAL, TimeZone.getDefault())) != null)
+            return date;
+        else if((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME, TimeZone.getDefault())) != null)
+            return date;
+
+        return null;
+    }
     public static void main(String[] args) throws ImageProcessingException, IOException {
-        File file = new File("1.jpg");
+        File file = new File(args[0]);
         Metadata metadata = ImageMetadataReader.readMetadata(file);
         //перебор всех тэгов
-/*
+
         for (Directory directory : metadata.getDirectories()) {
             for (Tag tag : directory.getTags()) {
                 System.out.println(tag);
             }
         }
-*/
-        //ИЛИ
-        System.out.println("++++++++ExifSubIFDDirectory++++++++");
-        ExifSubIFDDirectory exifDirectory1 = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        System.out.println(exifDirectory1);
-        for (Tag tag : exifDirectory1.getTags()) {
-            System.out.println(tag);
-        }
-        //ИЛИ
-        System.out.println("++++++++ExifIFD0Directory++++++++");
-        ExifIFD0Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        System.out.println(exifDirectory);
-        for (Tag tag : exifDirectory.getTags()) {
-            System.out.println(tag);
-        }
-        Date date = exifDirectory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault());
-        System.out.println(date == null);
-//        System.out.println(date.getTime());
-        assert date != null; //и чо с этим делать? Надо почитать, как это применяется
-        java.sql.Date d = new java.sql.Date(date.getTime());
-        System.out.println(d);
+
+//        Date date = getDateFromMetadata(metadata);
+//        java.sql.Date d = new java.sql.Date(date.getTime());
+//        System.out.println(d);
 
     }
 }
