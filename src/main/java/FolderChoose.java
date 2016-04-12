@@ -36,7 +36,7 @@ class FolderChoose extends JFrame {
             if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 directory = fileOpenDialog.getSelectedFile().getPath();
                 System.out.println(fileOpenDialog.getSelectedFile().getPath());
-                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().contains(".CR2")) || (pathname.getName().contains(".MOV"))));
+                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().contains(".CR2")) || (pathname.getName().contains(".MOV"))|| (pathname.getName().contains(".jpg"))|| (pathname.getName().contains(".mp4"))));
                 //------------------------------------------------
                 for(File file : files){
                     try {
