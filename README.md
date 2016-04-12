@@ -6,3 +6,7 @@
 http://juravskiy.ru/?p=1054
 https://drewnoakes.com/code/exif/
 https://github.com/drewnoakes/metadata-extractor/wiki
+
+Для Raw и Jpg сделал, для видосов пока нет.
+В JPG дата может быть в ExifSubIFDDirectory или в ExifIFD0Directory, надо учитывать
+и не только в TAG_DATETIME_ORIGINAL, но и в TAG_DATETIME

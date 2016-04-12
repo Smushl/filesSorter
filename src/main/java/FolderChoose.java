@@ -1,13 +1,18 @@
 
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -20,7 +25,7 @@ class FolderChoose extends JFrame {
     private List<File> files;
     private final String DEFAULT_PATH = "/media/roman/EOS_DIGITAL/DCIM/100CANON";
 
-    FolderChoose() {
+    private FolderChoose() {
         super("Choose Folder To Files Sort");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -36,18 +41,36 @@ class FolderChoose extends JFrame {
             if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 directory = fileOpenDialog.getSelectedFile().getPath();
                 System.out.println(fileOpenDialog.getSelectedFile().getPath());
-                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().contains(".CR2")) || (pathname.getName().contains(".MOV")) || (pathname.getName().contains(".jpg")) || (pathname.getName().contains(".mp4"))));
+                Collections.addAll(files, fileOpenDialog.getSelectedFile().listFiles(pathname -> (pathname.getName().toLowerCase().contains(".cr2")) || (pathname.getName().toLowerCase().contains(".jpg"))/*|| (pathname.getName().contains(".MOV")) || (pathname.getName().contains(".mp4"))*/));
                 //------------------------------------------------
                 for (File file : files) {
+                    String dateFolderName = "_X3";
                     try {
-                        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-                        String dateFolderName = attr.creationTime().toString().substring(0, 10);
-                        File dateFolder = new File(directory + "/" + dateFolderName);
-                        System.out.println("Creating " + dateFolder.getName() + " " + dateFolder.mkdir());
-                        System.out.println("Mooving file " + file.getName() + " " + file.renameTo(new File(directory + "/" + dateFolderName + "/" + file.getName())));
-                    } catch (IOException e1) {
+//                        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+//                        String dateFolderName = attr.creationTime().toString().substring(0, 10);
+                        Metadata metadata = ImageMetadataReader.readMetadata(file);
+                        ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+                        ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+                        Date dateSubIFD = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault());
+                        Date dateIFD0 = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL, TimeZone.getDefault());
+
+                        if (dateIFD0 != null) {
+                            java.sql.Date dsql = new java.sql.Date(dateIFD0.getTime());
+                            dateFolderName = dsql.toString();
+                        }
+                        else {
+                            java.sql.Date dsql = new java.sql.Date(dateSubIFD.getTime());
+                            dateFolderName = dsql.toString();
+                        }
+                    } catch (Exception e1) {
+                        System.err.println(file.getName());
                         e1.printStackTrace();
                     }
+                    File dateFolder = new File(directory + "/" + dateFolderName);
+                    System.out.println("Creating " + dateFolder.getName() + " " + dateFolder.mkdir());
+                    System.out.println("Mooving file " + file.getName() + " " + file.renameTo(new File(directory + "/" + dateFolderName + "/" + file.getName())));
+
                 }
                 //-----------------------------------
                 System.out.println("Files moved:  " + files.size());
