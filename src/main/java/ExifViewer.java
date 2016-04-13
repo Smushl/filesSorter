@@ -20,29 +20,19 @@ import java.util.TimeZone;
  */
 public class ExifViewer {
     public static Date getDateFromMetadata (Metadata metadata){
-        Date date;
-        ExifDirectoryBase exifDirectory;
-        exifDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        //тут возникает NullPointerException, беда, что он вылетает из первой же строчки
-        if ((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME_ORIGINAL, TimeZone.getDefault())) != null)
+        try {
+            Directory directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+            Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
             return date;
-        else if((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME, TimeZone.getDefault())) != null)
-            return date;
-
-        exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-
-        if ((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME_ORIGINAL, TimeZone.getDefault())) != null)
-            return date;
-        else if((date = exifDirectory.getDate(ExifDirectoryBase.TAG_DATETIME, TimeZone.getDefault())) != null)
-            return date;
-
-        return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
     public static void main(String[] args) throws ImageProcessingException, IOException {
         File file = new File(args[0]);
         Metadata metadata = ImageMetadataReader.readMetadata(file);
-        //перебор всех тэгов
 
+        //перебор всех тэгов
         for (Directory directory : metadata.getDirectories()) {
             for (Tag tag : directory.getTags()) {
                 System.out.println(tag);

@@ -54,15 +54,17 @@ class FolderChoose extends JFrame {
                 for (File file : files) {
                     String dateFolderName = "_X3";
                     try {
+                        //старый метод, по дате создания файла
 //                        BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
 //                        String dateFolderName = attr.creationTime().toString().substring(0, 10);
                         Metadata metadata = ImageMetadataReader.readMetadata(file);
                         Date date = ExifViewer.getDateFromMetadata(metadata);
-                        java.sql.Date dsql = new java.sql.Date(date.getTime());
-                        dateFolderName = dsql.toString();
-
+                        if (date != null) {
+                            java.sql.Date dsql = new java.sql.Date(date.getTime());
+                            dateFolderName = dsql.toString();
+                        }
                     } catch (Exception e1) {
-                        System.err.println("Error with file " + file.getName());
+                        System.err.println(file.getName() + " is unreadable");
                         e1.printStackTrace();
                     }
                     File dateFolder = new File(directory + "/" + dateFolderName);
